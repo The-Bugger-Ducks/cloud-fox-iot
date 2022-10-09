@@ -1,61 +1,56 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
-#include <time.h>
 
-const char* ssid = "rede";
-const char* pwd = "senha";
+const char* ssid = "VIRUS-2.4GHz";
+const char* password = "mateira13";
 
-// configurações para mexer com dada/hora
-char* ntpServer = "pool.ntp.org";
-long gmtOffset_sec = 0;
-int daylightOffset_sec = 0;
-struct tm timeInfo;
+String serverName = "http://cloud-fox.onrender.com/measurements/";
 
-// URL do servidor
-String serverName = "http://postman-echo.com/";
+unsigned long lastTime = 0;
+unsigned long timerDelay = 900000;
 
 void setup() {
   Serial.begin(115200);
-  WiFi.begin(ssid, pwd);
-  Serial.print("Conectando...");
 
-  // enquanto a conexão não estabelece...  
-  while(WiFi.status() != WL_CONNECTED){
+  WiFi.begin(ssid, password);
+  Serial.println("Connecting");
+  while(WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
-
-  Serial.print("\n Conectado ao WiFi com o IP: ");
+  Serial.println("");
+  Serial.print("Connected to WiFi with IP Address: ");
   Serial.println(WiFi.localIP());
-
-  // configurando data/hora
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+ 
 }
 
-void loop(){
-  if(WiFi.status() == WL_CONNECTED) { 
-    // sincronizando data/hora  
-    if(!getLocalTime(&timeInfo)){
-      Serial.println("Acesso ao ntp falhou");
-    }
-      
-    // configurando e realizando a requisição GET
-    HTTPClient http;
-    String tmp = serverName + "get?temp=21.0&minutes=" + timeInfo.tm_min;
-    http.begin(tmp.c_str());
-    int httpCode = http.GET();
+void loop() {
 
-    // caso a requisição tenha sido feita, análise do seu status
-    if(httpCode > 0) {
-      Serial.print("Status code: ");
+  if ((millis() - lastTime) > timerDelay) {
+    //Check WiFi connection status
+    if(WiFi.status()== WL_CONNECTED){
+
+    
+    ////HTTP POST
+    WiFiClientSecure client;
+    HTTPClient http_post;
+    HTTPClient http;
+    String url = serverName;
+    http_post.begin(client, url);
+    Serial.println("\nPOST");
+    http_post.addHeader("Content-Type", "application/json");
+    String data = "{\"stationId\":\"C14H\", \"measurements\": {\"heat\":\"24.5\", \"pluv\":\"80\"}, \"momet\":\"1664967601\"}";
+    int httpCode = http_post.POST(data);
+    if (httpCode > 0){
       Serial.println(httpCode);
-      String payload = http.getString();
-      Serial.print("Response: ");
+      String payload = http_post.getString();
+      Serial.print("Resposta do server: ");
       Serial.println(payload);
     } else {
-      Serial.println("Erro! Sem conexão...");  
+      Serial.println("Http error");
+    }    
     }
-
-    delay(30000);
-  }  
+  
+    lastTime = millis();
+  }
 }
