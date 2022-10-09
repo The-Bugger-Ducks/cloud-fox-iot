@@ -1,10 +1,11 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-const char* ssid = "VIRUS-2.4GHz";
-const char* password = "mateira13";
+const char* ssid = "*******";
+const char* password = "*******";
 
-String serverName = "http://cloud-fox.onrender.com/measurements/";
+//String serverName = "http://cloud-fox.onrender.com/measurements/";
+String serverName = "http://postman-echo.com/";
 
 unsigned long lastTime = 0;
 unsigned long timerDelay = 900000;
@@ -32,14 +33,15 @@ void loop() {
 
     
     ////HTTP POST
-    WiFiClientSecure client;
+    WiFiClient client;
     HTTPClient http_post;
     HTTPClient http;
-    String url = serverName;
+    String url = serverName + "post";
     http_post.begin(client, url);
     Serial.println("\nPOST");
     http_post.addHeader("Content-Type", "application/json");
-    String data = "{\"stationId\":\"C14H\", \"measurements\": {\"heat\":\"24.5\", \"pluv\":\"80\"}, \"momet\":\"1664967601\"}";
+    http_post.addHeader("x-api-key", "qwertyuiopasdfghjklzxcvbnm");
+    String data = "{\"nome\":38972142176126, \"stationId\":\"C14H\", \"measurements\":{\"heat\":24.5, \"pluv\":80},  \"momet\":\"1664967601\"}}";
     int httpCode = http_post.POST(data);
     if (httpCode > 0){
       Serial.println(httpCode);
@@ -48,7 +50,7 @@ void loop() {
       Serial.println(payload);
     } else {
       Serial.println("Http error");
-    }    
+    }      
     }
   
     lastTime = millis();
