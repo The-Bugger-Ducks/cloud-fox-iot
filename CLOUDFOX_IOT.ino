@@ -7,11 +7,9 @@ const char* ssid = "Nome da rede";
 const char* password = "Sua senha";
 
 String serverName = "https://cloud-fox.onrender.com/measurements";
-//String serverName = "http://192.168.15.104:3000/";
-//String serverName = "http://postman-echo.com/";          
-
+        
 unsigned long lastTime = 0;
-unsigned long timerDelay = 10000;
+unsigned long timerDelay = 3600000;
 
 char* ntpServer = "pool.ntp.org";
 
@@ -46,9 +44,6 @@ void setup()
   Serial.println(WiFi.localIP());
 
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-
-
-
 }
 
 void loop()
