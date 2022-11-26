@@ -12,9 +12,11 @@
 const char* ssid = "Rede";
 const char* password = "Senha";
 
+
 String serverName = "https://cloud-fox.onrender.com/measurements";
         
 unsigned long lastTime = 0;
+
 unsigned long timerDelay = 3600000; //20000
 
 char* ntpServer = "pool.ntp.org";
@@ -23,8 +25,6 @@ unsigned long epochTime;
 struct tm timeInfo;
 const long  gmtOffset_sec = 0;
 const int   daylightOffset_sec = -3600*3;
-
-
 
 unsigned long getTime() {
   time_t now;
@@ -36,11 +36,13 @@ unsigned long getTime() {
   return now;
 }
 
+
 DHT dht(DHTPIN, DHTTYPE);
 
 void setup()
 {
   Serial.begin(115200);
+
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
@@ -54,6 +56,7 @@ void setup()
   Serial.print("Connected to WiFi with IP Address: ");
   Serial.println(WiFi.localIP());
 
+
   dht.begin();
 
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
@@ -66,6 +69,7 @@ void loop()
     // Check WiFi connection status
     if (WiFi.status() == WL_CONNECTED)
     {
+
 
 
       float h = dht.readHumidity();
@@ -91,7 +95,9 @@ void loop()
       http_post.begin(client, url);
       Serial.println("\nPOST");
       http_post.addHeader("Content-Type", "application/json");
+
       String data = "{\"stationId\":\"C14H\", \"measurements\":{\"temp\":\"" + String(t) + "\", \"rain\": \"" + String(pluv) +"\", \"windSpeed\": \"" + String(windSpeed) + "\", \"umi\": \"" + String(h) + "\" },  \"moment\":\"" + String(epochTime) + "\"}";
+
       int httpCode = http_post.POST(data);
       if (httpCode > 0)
       {
@@ -99,12 +105,14 @@ void loop()
         String payload = http_post.getString();
         Serial.print("Resposta do server: ");
         Serial.println(payload);
+
         
         Serial.print(F("Humidity: "));
         Serial.print(h);
         Serial.print(F("%  Temperature: "));
         Serial.print(t);
         Serial.print(F("°C "));
+
       }
       else
       {
